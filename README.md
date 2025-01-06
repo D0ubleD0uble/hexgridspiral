@@ -1,5 +1,8 @@
 # HexGridSpiral
 
+[![crates.io](https://img.shields.io/crates/v/hexgridspiral)](https://crates.io/crates/hexgridspiral) [![downloads](https://img.shields.io/crates/dr/hexgridspiral?label=downloads)](https://crates.io/crates/hexgridspiral) [![docs.rs](https://docs.rs/hexgridspiral/badge.svg)](https://docs.rs/hexgridspiral) [![license](https://img.shields.io/badge/license-Apache--2.0_OR_MIT-blue?style=flat-square)](https://github.com/lucidBrot/hexgridspiral/blob/prod/Cargo.toml#L15)
+
+
 * A Coordinate System for **hexagonal** maps with support for the usual coordinate-system operations
 * Each tile is identified by a  **single unique integer**
 * Tile indices start at 0 and **spiral outwards**
@@ -47,7 +50,7 @@ let corner0_hgs = HGSTile::new(Ring::new(2.into()).corner(RingCornerIndex::BOTTO
 ```toml
 # Cargo.toml:
 [dependencies]
-hexgridspiral = { version = "0.1", features = ["nightly"] }
+hexgridspiral = { version = "0.2", features = ["nightly"] }
 ```
 
 The feature `nightly` gates some code that only works when compiled with the nightly rust toolchain. Omit it if you need to build in stable rust. (Currently the only thing you lose is ability to iterate over `MovementRange` or some `..=` range between two `TileIndex`.)

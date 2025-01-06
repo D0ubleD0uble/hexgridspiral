@@ -824,7 +824,6 @@ impl CCTile {
         CCTile::from_qrs(-self.r, -self.s, -self.q)
     }
 
-    // TODO: Impement CC Reflection on all axes
     /// See <https://www.redblobgames.com/grids/hexagons/#reflection> for a
     /// visualization.
     ///
