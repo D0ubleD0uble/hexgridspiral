@@ -22,7 +22,7 @@ use num_enum::{IntoPrimitive, TryFromPrimitive};
 use std::ops;
 
 #[derive(
-    Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq, Add, Sub, Mul, Display, From, Into,
+    Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq, Add, Sub, Mul, Display, From, Into, Hash,
 )]
 pub struct TileIndex(pub u64);
 

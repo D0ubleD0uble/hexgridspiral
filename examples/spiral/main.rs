@@ -14,11 +14,11 @@ fn main() {
     for i in 0..21 {
         let tile = HGSTile::make(i).cc().to_pixel((0., 0.), step_size.into());
         // Let's say you want to add tiles to your levelmap in the game UI:
-        add_tile_to_UI(tile, i);
+        add_tile_to_user_interface(tile, i);
     }
 }
 
-fn add_tile_to_UI(position: (f64, f64), i: u64) {
+fn add_tile_to_user_interface(position: (f64, f64), i: u64) {
     // I don't want to add a huge dependency to this example, so imagine a GUI.
     println!(
         "The GUI would position tile {} at pixel-position ({},{})",

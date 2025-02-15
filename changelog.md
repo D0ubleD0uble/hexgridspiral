@@ -1,6 +1,9 @@
 # Changelog
 Best-Effort (Means: worst-effort, actually).
 
+## v0.2.3
+* Derive `Hash` for `TileIndex`
+
 ## v0.2.1
 * Replace relative links to images with absolute urls, so they should now render in crates.io and docs.rs.
 
