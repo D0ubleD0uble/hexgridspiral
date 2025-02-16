@@ -1,7 +1,15 @@
 # Changelog
 Best-Effort (Means: worst-effort, actually).
 
-## v0.2.3
+## v0.2.5
+* Upgrade dependencies, including breaking changes:
+    ```
+       Upgrading derive_more ^1 -> ^2
+       Upgrading rand ^0.8.5 -> ^0.9.0
+       Upgrading rand_chacha ^0.3.1 -> ^0.9.0
+    ```
+
+## v0.2.4
 * Derive `Hash` for `TileIndex`
 
 ## v0.2.1

@@ -17,7 +17,8 @@ Read the [README](https://github.com/lucidBrot/hexgridspiral) for
 
 // The objects Tile, Ring, TileIndex, RingIndex are not supposed to be mutated.
 // Instead, (they) make new objects.
-use derive_more::{Add, Display, From, Into, Mul, Neg, Sub};
+use derive_more::{Add, Display, From, Into, Mul, Neg};
+use derive_more::with_trait::Sub;
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 use std::ops;
 
@@ -425,7 +426,7 @@ impl Ring {
     }
 
     pub fn random_tile_in_ring<RNG: rand::Rng>(&self, rng: &mut RNG) -> TileIndex {
-        TileIndex(rng.gen_range(self.min().value()..=self.max().value()))
+        TileIndex(rng.random_range(self.min().value()..=self.max().value()))
     }
 
     /// Like `ring.n` but counts from zero. I.e. the Origin-Tile is in the ring 1, which has radius 0.

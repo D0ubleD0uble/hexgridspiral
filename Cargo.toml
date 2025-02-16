@@ -1,6 +1,6 @@
 [package]
 name = "hexgridspiral"
-version = "0.2.4"
+version = "0.2.5"
 edition = "2021"
 include = [
     "**/*.rs",
@@ -21,12 +21,12 @@ description = "Hexagonal Cube-Coordinate System with Spiralling Integer Tile Ide
 rust-version = "1.85"
 
 [dependencies]
-rand = { version = "0.8.5" }
-rand_chacha = { version = "0.3.1"}
+rand = "0.9.0"
+rand_chacha = "0.9.0"
 # Newtypes type-safety but with operators
 # You can specify the types of derives that you need for less time spent
 # compiling. For the full list of features see this crate its `Cargo.toml`.
-derive_more = { version = "1", features = ["from", "add", "mul", "into", "display", "not"] }
+derive_more = { version = "2", features = ["from", "add", "mul", "into", "display", "not"] }
 num_enum = {version = "0.7.3"}
 # Floating-Point Comparison for Tests.
 approx_eq = { version = "0.1" }
