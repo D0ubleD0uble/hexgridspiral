@@ -37,7 +37,7 @@ jobs:
         run: cargo +nightly doc --verbose --features nightly
 
   test_minimum:
-      name: Test Rust Stable on ${{ matrix.os }} version ${{ matrix.rust }}
+      name: Test Minimum Stable on ${{ matrix.os }} version ${{ matrix.rust }}
       runs-on: ${{ matrix.os }}
       strategy:
         fail-fast: true
@@ -53,9 +53,9 @@ jobs:
       - name: Override Rust version
         run: rustup default ${{ matrix.rust }}
       - name: Build
-        run: cargo build +stable --verbose
+        run: cargo +stable build --verbose
       - name: Run tests
-        run: cargo test +stable --verbose
+        run: cargo +stable test --verbose
 
   test_stable:
       name: Test Rust Stable on ${{ matrix.os }}
