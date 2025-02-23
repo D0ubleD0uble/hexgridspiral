@@ -53,9 +53,9 @@ jobs:
       - name: Override Rust version
         run: rustup default ${{ matrix.rust }}
       - name: Build
-        run: cargo build --verbose
+        run: cargo build +stable --verbose
       - name: Run tests
-        run: cargo test --verbose
+        run: cargo test +stable --verbose
 
   test_stable:
       name: Test Rust Stable on ${{ matrix.os }}
