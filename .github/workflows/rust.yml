@@ -50,6 +50,8 @@ jobs:
       - uses: hecrj/setup-rust-action@v2
         with:
             rust-version: ${{ matrix.rust }}
+      - name: Override Rust version
+        run: rustup default ${{ matrix.rust }}
       - name: Build
         run: cargo +stable build --verbose
       - name: Run tests
