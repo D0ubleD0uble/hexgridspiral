@@ -17,8 +17,8 @@ Read the [README](https://github.com/lucidBrot/hexgridspiral) for
 
 // The objects Tile, Ring, TileIndex, RingIndex are not supposed to be mutated.
 // Instead, (they) make new objects.
-use derive_more::{Add, Display, From, Into, Mul, Neg};
 use derive_more::with_trait::Sub;
+use derive_more::{Add, Display, From, Into, Mul, Neg};
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 use std::ops;
 
@@ -333,6 +333,14 @@ impl HGSTile {
     pub fn cc(&self) -> CCTile {
         self.into()
     }
+
+    pub fn spiral_index(&self) -> TileIndex {
+        self.h
+    }
+
+    pub fn ring(&self) -> Ring {
+        self.ring
+    }
 }
 
 impl Sub<i32> for TileIndex {
@@ -432,6 +440,10 @@ impl Ring {
     /// Like `ring.n` but counts from zero. I.e. the Origin-Tile is in the ring 1, which has radius 0.
     pub fn radius(&self) -> u64 {
         (self.n - RingIndex::ORIGIN_RING).value()
+    }
+
+    pub fn ring_index(&self) -> RingIndex {
+        self.n
     }
 }
 
@@ -999,6 +1011,7 @@ impl CCTile {
     pub fn hgs(&self) -> HGSTile {
         self.into()
     }
+
     pub fn spiral_index(&self) -> TileIndex {
         self.hgs().h
     }

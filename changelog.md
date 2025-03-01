@@ -1,6 +1,12 @@
 # Changelog
 Best-Effort (Means: worst-effort, actually).
 
+## v0.2.6
+
+* Expose `HGSTile::spiral_index(&self)` to get the tile index.
+* Expose `HGSTile::ring(&self)` to get the ring.
+* Expose `Ring::ring_index(&self)` to get the ring's index.
+
 ## v0.2.5
 * Upgrade dependencies, including breaking changes:
     ```
