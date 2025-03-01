@@ -36,6 +36,27 @@ jobs:
       - name: Build docs
         run: cargo +nightly doc --verbose --features nightly
 
+  test_minimum:
+      name: Test Minimum Stable on ${{ matrix.os }} version ${{ matrix.rust }}
+      runs-on: ${{ matrix.os }}
+      strategy:
+        fail-fast: true
+        matrix:
+          include:
+            - { rust: "1.85.0",           os: ubuntu-latest }
+
+      steps:
+      - uses: actions/checkout@v4
+      - uses: hecrj/setup-rust-action@v2
+        with:
+            rust-version: ${{ matrix.rust }}
+      - name: Override Rust version
+        run: rustup default ${{ matrix.rust }} && rustup override set ${{ matrix.rust }}
+      - name: Build
+        run: cargo build --verbose
+      - name: Run tests
+        run: cargo test --verbose
+
   test_stable:
       name: Test Rust Stable on ${{ matrix.os }}
       runs-on: ${{ matrix.os }}
