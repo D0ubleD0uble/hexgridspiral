@@ -1108,6 +1108,8 @@ impl MovementRange {
         }
     }
 
+    // TODO: Subtraction of two MovementRanges would also be a nice feature.
+
     pub fn intersect(&self, other: &MovementRange) -> MovementRange {
         // The intersection in one direction is [max_lower, min_upper].
         MovementRange {

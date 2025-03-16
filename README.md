@@ -24,6 +24,12 @@ However, most other use-cases benefit greatly from the Cube Coordinates outlined
 * Which Tiles are in **Movement Range** and **Intersecting** Movement Ranges.
 * **Reflection** along or across axes, vertically and horizontally, and diagonally.
 
+## Interactive Example
+
+A subset of the features are used on [example page here](https://lucidbrot.github.io/hexgridspiral-example). 
+
+The code for the example can be found in the [hexgridspiral-example](https://github.com/lucidBrot/hexgridspiral-example) repository.
+
 ## Usage
 
 [crates.io](https://crates.io/crates/hexgridspiral) [documentation](https://docs.rs/crate/hexgridspiral/) [changelog](./changelog.md)
@@ -128,7 +134,7 @@ If you'd like to cite this repo, you can copy-paste this:
   year={2024}} 
 ```
 
-You'll very likely also want to reference the [Red Blob Games Article on Hexagonal Grids](https://www.redblobgames.com/grids/hexagons/#reflection) that informed everything except the spiral part of this implementation.
+You'll very likely also want to reference the [Red Blob Games Article on Hexagonal Grids](https://www.redblobgames.com/grids/hexagons/#reflection) that informed everything except the spiral part of this implementation. Following my release of this crate, Patel has expanded his article even further and it explains parts of this crate's codebase too.
 
 ```bibtex
 @misc{Patel_2013,
