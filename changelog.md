@@ -1,6 +1,13 @@
 # Changelog
 Best-Effort (Means: worst-effort, actually).
 
+## v0.2.7
+
+Just documentation changes.
+
+* Readme mentions the [Example Website](https://lucidbrot.github.io/hexgridspiral-example/) and the [Corresponding Repository](https://github.com/lucidBrot/hexgridspiral-example)
+* Clarify that the redblobgames blogspot is a living document that was expanded to mention spiral systems _after_ I implemented it.
+
 ## v0.2.6
 
 * Expose `HGSTile::spiral_index(&self)` to get the tile index.
