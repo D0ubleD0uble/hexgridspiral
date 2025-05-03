@@ -1,6 +1,9 @@
 # Changelog
 Best-Effort (Means: worst-effort, actually).
 
+## v0.2.8
+* Add `serde` dependency and implement `Serialize` and `Deserialize` on most types.
+
 ## v0.2.7
 
 Just documentation changes.

@@ -21,9 +21,10 @@ use derive_more::with_trait::Sub;
 use derive_more::{Add, Display, From, Into, Mul, Neg};
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 use std::ops;
+use serde::{Serialize, Deserialize};
 
 #[derive(
-    Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq, Add, Sub, Mul, Display, From, Into, Hash,
+    Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq, Add, Sub, Mul, Display, From, Into, Hash, Serialize, Deserialize
 )]
 pub struct TileIndex(pub u64);
 
@@ -64,7 +65,7 @@ impl std::iter::Step for TileIndex {
 
 /// Which Ring around the origin we're at, counting from 1.
 /// Implementation Detail: The RingIndex wraps an integer that equals the number of tiles in one edge of the Ring (including both corners).
-#[derive(Debug, Copy, Clone, PartialEq, Add, Sub, Mul, Display, From)]
+#[derive(Debug, Copy, Clone, PartialEq, Add, Sub, Mul, Display, From, Serialize, Deserialize)]
 pub struct RingIndex(u64);
 
 impl TileIndex {
@@ -151,7 +152,7 @@ impl ops::Sub<u64> for RingIndex {
 /// All Ring-Corner Tiles have the same number of steps to the origin.
 /// The other tiles in the Ring are on straight edges between corners.
 /// The [RingIndex] counts from 1 and thus is always equal to the [Ring::edge_size].
-#[derive(Debug, Copy, Clone, PartialEq, Add, Display, From, Into)]
+#[derive(Debug, Copy, Clone, PartialEq, Add, Display, From, Into, Serialize, Deserialize)]
 pub struct Ring {
     /// ring-index
     n: RingIndex,
@@ -160,7 +161,7 @@ pub struct Ring {
 /// Hexgrid Spiral Tile
 ///
 /// Identified by a single integer index ([TileIndex]) that spirals around the origin.
-#[derive(Debug, Copy, Clone, PartialEq, Display, From, Into)]
+#[derive(Debug, Copy, Clone, PartialEq, Display, From, Into, Serialize, Deserialize)]
 #[display("HGSTile: {h}")]
 pub struct HGSTile {
     // tile-index
@@ -179,7 +180,7 @@ pub struct HGSTile {
 /// Towards the right, `r` stays constant and is *positive* on the bottom side.
 /// Towards the top-right, `s` stays constant and is negative on the bottom side.
 // TODO: Division is not implemented for CCTile. If needed, it should yield a CCTileFloat type.
-#[derive(Debug, Copy, Clone, PartialEq, Display, From, Into, Eq, Neg, Add, Mul, Sub)]
+#[derive(Debug, Copy, Clone, PartialEq, Display, From, Into, Eq, Neg, Add, Mul, Sub, Serialize, Deserialize)]
 #[display("CCTile: ({q}, {r},{s})")]
 pub struct CCTile {
     q: i64,
@@ -189,7 +190,7 @@ pub struct CCTile {
 
 /// An identifier for each side of the ring's edge.
 /// Numbered counterclockwise from the top-right edge.
-#[derive(Debug, Copy, Clone, PartialEq, Add, Display, From, Into)]
+#[derive(Debug, Copy, Clone, PartialEq, Add, Display, From, Into, Serialize, Deserialize)]
 pub struct RingEdge(u8);
 
 /// An identifier for each corner of the ring's edge.
@@ -1086,7 +1087,7 @@ impl CCTile {
 }
 
 /// <https://www.redblobgames.com/grids/hexagons/#range-coordinate>
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 pub struct MovementRange {
     q_min: i64,
     q_max: i64,
