@@ -960,12 +960,13 @@ impl CCTile {
 
     /// computes the coordinates in the plane as floats.
     /// * `unit_step` : The size of one step from a hex tile's center to its neighboring tile's center.
-    /// The `unit_step` is twice the incircle radius of the hex. Or `sqrt(3) * outcircle_radius`.
+    /// The `unit_step` is normally twice the incircle radius of the hex. Or `sqrt(3) * outcircle_radius`,
+    /// but we allow the user to specify x and y steps separately to support irregular hexagons.
     /// * `origin` : The pixel position of the origin-tile's center.
     ///
     /// The resulting pixel coordinates are in a system where positive x corresponds to [RingCornerIndex::RIGHT] and
     /// positive y corresponds to the UP-direction between ([RingCornerIndex::TOPLEFT] and [RingCornerIndex::TOPRIGHT])..
-    pub fn to_pixel(&self, origin: (f64, f64), unit_step: f64) -> (f64, f64) {
+    pub fn to_pixel(&self, origin: (f64, f64), unit_step: (f64, f64)) -> (f64, f64) {
         // We have point-top hexes. Call the hex inner-radius iR and the hex outer-radius oR.
         // The width (aka iR) of a hex equals sqrt(3)/2 * height (aka oR).
         // On the redblobgames website, they call the "size" what I'd call oR.
@@ -975,8 +976,8 @@ impl CCTile {
         // oR is the outer radius of the hex circumcircle; or the edge length.
         // The unit_step is two times the height of a equilateral triangle, so
         // unit_step = sqrt(3.)/2*oR*2
-        let outer_radius = unit_step / f64::sqrt(3.);
-        let _redblob_size = outer_radius;
+        let _redblob_size_x = unit_step.0;
+        let _redblob_size_y = unit_step.1;
         // Walk both unit vectors.
         // Math according to https://www.redblobgames.com/grids/hexagons/#hex-to-pixel-axial
         // the unit vectors are, relative to the hex-edge length,
@@ -988,7 +989,7 @@ impl CCTile {
         // One step of incrementing q is one step along the x-axis.
         // But moving along the x-axis does not change r ... why does it contribute here?
         // Because it matters: One step of incrementing r, given a fixed q. That is also half a step along the x axis.
-        let x = unit_step * ((self.q as f64) + (self.r as f64) / 2.);
+        let x = _redblob_size_x * ((self.q as f64) + (self.r as f64) / 2.);
 
         // Expressing the basis vectors in terms of unit_step:
         // One step of incrementing q given a fixed r is half a step along the y axis.
@@ -1000,7 +1001,7 @@ impl CCTile {
         // Or, because this is in a equilateral triangle,
         // the dy is the height thereof, so sqrt(3.)/2 * unit_step.
         // mine2:
-        let y = f64::sqrt(3.) / 2. * unit_step * (-self.r as f64);
+        let y = f64::sqrt(3.) / 2. * _redblob_size_y * (-self.r as f64);
 
         // redblob: Equivalent to my "mine2" formula, because `redblob_size * sqrt(3) = unit_step`:
         // Unit_step is twice the height of the equilateral triangle spanned by two oR and an edge.
@@ -1730,24 +1731,32 @@ mod test {
         {
             let tile1_cc = CCTile::make(1);
             assert_eq!(tile1_cc, CCTile::from_qr(1, -1));
-            let tile1_px = tile1_cc.to_pixel((0., 0.), 1.);
+            let tile1_px = tile1_cc.to_pixel((0., 0.), (1., 1.));
             assert_eq!(tile1_px, (0.5, f64::sqrt(3.) / 2.));
         }
 
+        // Same test for differing unit_step
+        {
+            let tile1_cc = CCTile::make(1);
+            assert_eq!(tile1_cc, CCTile::from_qr(1, -1));
+            let tile1_px = tile1_cc.to_pixel((0., 0.), (1., 0.75));
+            assert_eq!(tile1_px, (0.5, 0.75 * f64::sqrt(3.) / 2.));
+        }
+
         let tile1_cc = CCTile::unit(&RingCornerIndex::RIGHT);
-        let tile1_px = tile1_cc.to_pixel((0., 0.), 1.);
+        let tile1_px = tile1_cc.to_pixel((0., 0.), (1., 1.));
         assert_eq!(tile1_px, (1., 0.));
 
         let tile_right = tile1_cc * 5;
-        assert_eq!(tile_right.to_pixel((1., 2.), 1.), (6., 2.));
+        assert_eq!(tile_right.to_pixel((1., 2.), (1., 1.)), (6., 2.));
 
         // Same at larger scale:
-        assert_eq!(tile1_cc.to_pixel((0., 0.), 10000.), (10000., 0.));
+        assert_eq!(tile1_cc.to_pixel((0., 0.), (10000., 10000.)), (10000., 0.));
 
         // Same with a tile that is not at r == 0:
         let tile2 = CCTile::unit(&RingCornerIndex::TOPLEFT);
         assert_eq!(tile2, CCTile::from_qr(0, -1));
-        let tile2_px = tile2.to_pixel((0., 0.), 1.);
+        let tile2_px = tile2.to_pixel((0., 0.), (1., 1.));
         let inner_radius = 0.5;
         let outer_radius = 2. / f64::sqrt(3.) * inner_radius;
         let y_should = 1.5 * outer_radius;
@@ -1758,7 +1767,7 @@ mod test {
 
         // Test with a tile where both q and r are relevant, and origin and unit step are non-default.
         let tile35 = HGSTile::make(35).cc();
-        let pixel35 = tile35.to_pixel((2., 3.), 4.);
+        let pixel35 = tile35.to_pixel((2., 3.), (4.,4.));
         // Tile 35, aka (3, 1, -4), is 2.5 steps to the right and one step down.
         let pxstep = CCTile::pixel_step_vertical(4.);
         let should_be_pixel_35 = (2. + 2.5 * pxstep.0, 3. - pxstep.1);
@@ -1776,7 +1785,7 @@ mod test {
             let tile = CCTile::new(h);
             let expected_pixel_x = unit_step * 1.5;
             let expected_pixel_y = unit_step * f64::sqrt(3.) / 2.;
-            let pixel = tile.to_pixel(origin, unit_step);
+            let pixel = tile.to_pixel(origin, (unit_step, unit_step));
             assert_approx_eq!(pixel.0, expected_pixel_x);
             assert_approx_eq!(pixel.1, expected_pixel_y);
             let tile2 = CCTile::from_pixel(pixel);
@@ -1792,7 +1801,7 @@ mod test {
         // Origin should be at (0,0)
         {
             let tile = CCTile::make(0);
-            assert_eq!(tile.to_pixel(origin, unit_step), (0., 0.));
+            assert_eq!(tile.to_pixel(origin, (unit_step, unit_step)), (0., 0.));
             assert_eq!(CCTile::from_pixel((0., 0.)), tile);
         }
 
@@ -1813,7 +1822,7 @@ mod test {
         {
             let tile = CCTile::make(1);
             assert_eq!(tile, CCTile::from_qr(1, -1));
-            let pixel = tile.to_pixel(origin, unit_step);
+            let pixel = tile.to_pixel(origin, (unit_step, unit_step));
             assert_approx_eq!(pixel.0, 0.5);
             assert_approx_eq!(pixel.1, f64::sqrt(3.) / 2. * unit_step);
         }
@@ -1828,7 +1837,7 @@ mod test {
         // Test that to and from pixel are consistent.
         for h in [0, 1, 2, 4, 5, 6, 8, 10, 27, 100] {
             let tile = CCTile::make(h);
-            let pixel = tile.to_pixel(origin, unit_step);
+            let pixel = tile.to_pixel(origin, (unit_step, unit_step));
             let tile2 = CCTile::from_pixel(pixel);
             assert_eq!(tile, tile2);
         }
