@@ -1007,18 +1007,19 @@ impl CCTile {
     ///
     /// The resulting pixel coordinates are in a system where positive x corresponds to [RingCornerIndex::RIGHT] and
     /// positive y corresponds to the UP-direction between ([RingCornerIndex::TOPLEFT] and [RingCornerIndex::TOPRIGHT]).
-    pub fn to_irregular_pixel(&self, origin: (f64, f64), unit_step: (f64, f64)) -> (f64, f64) {
+    pub fn to_irregular_pixel(&self, origin: (f64, f64), unit_steps: (f64, f64)) -> (f64, f64) {
         // We have point-top hexes. Call the hex inner-radius iR and the hex outer-radius oR.
         // The width (aka iR) of a hex equals sqrt(3)/2 * height (aka oR).
         // On the redblobgames website, they call the "size" what I'd call oR.
+        //   ==> ( redblob_size = outer_radius = unit_step / sqrt(3) )
         // On the x-axis, two centers are exactly 2*iR away.
         // On the y-axis, they are not on the same x-coord, so it's different.
         // There they are 3/4 * oR away from each other.
         // oR is the outer radius of the hex circumcircle; or the edge length.
         // The unit_step is two times the height of a equilateral triangle, so
         // unit_step = sqrt(3.)/2*oR*2
-        let _redblob_size_x = unit_step.0;
-        let _redblob_size_y = unit_step.1;
+        let unit_step_x = unit_steps.0;
+        let unit_step_y = unit_steps.1;
         // Walk both unit vectors.
         // Math according to https://www.redblobgames.com/grids/hexagons/#hex-to-pixel-axial
         // the unit vectors are, relative to the hex-edge length,
@@ -1030,7 +1031,7 @@ impl CCTile {
         // One step of incrementing q is one step along the x-axis.
         // But moving along the x-axis does not change r ... why does it contribute here?
         // Because it matters: One step of incrementing r, given a fixed q. That is also half a step along the x axis.
-        let x = _redblob_size_x * ((self.q as f64) + (self.r as f64) / 2.);
+        let x = unit_step_x * ((self.q as f64) + (self.r as f64) / 2.);
 
         // Expressing the basis vectors in terms of unit_step:
         // One step of incrementing q given a fixed r is half a step along the y axis.
@@ -1042,7 +1043,7 @@ impl CCTile {
         // Or, because this is in a equilateral triangle,
         // the dy is the height thereof, so sqrt(3.)/2 * unit_step.
         // mine2:
-        let y = f64::sqrt(3.) / 2. * _redblob_size_y * (-self.r as f64);
+        let y = f64::sqrt(3.) / 2. * unit_step_y * (-self.r as f64);
 
         // redblob: Equivalent to my "mine2" formula, because `redblob_size * sqrt(3) = unit_step`:
         // Unit_step is twice the height of the equilateral triangle spanned by two oR and an edge.
@@ -1078,7 +1079,14 @@ impl CCTile {
     }
 
     pub fn from_irregular_pixel(pixel: (f64, f64), origin: (f64, f64), unit_steps: (f64, f64)) -> Self {
-        todo!("implement!")
+        let x = pixel.0 - origin.0;
+        let y = pixel.1 - origin.1;
+        // Based on to_pixel formulas:
+        // let x = unit_step_x * ((self.q as f64) + (self.r as f64) / 2.);
+        // let y = f64::sqrt(3.)/2.*unit_step_y*(-self.r as f64);
+        let r = -2. / f64::sqrt(3.) * y / unit_steps.1;
+        let q = x / unit_steps.0 - (r / 2.);
+        Self::round_to_nearest_tile(q, r)
     }
 
     // https://www.redblobgames.com/grids/hexagons/#rounding
