@@ -20,11 +20,26 @@ Read the [README](https://github.com/lucidBrot/hexgridspiral) for
 use derive_more::with_trait::Sub;
 use derive_more::{Add, Display, From, Into, Mul, Neg};
 use num_enum::{IntoPrimitive, TryFromPrimitive};
+use serde::{Deserialize, Serialize};
 use std::ops;
-use serde::{Serialize, Deserialize};
 
 #[derive(
-    Debug, Copy, Clone, PartialOrd, Ord, PartialEq, Eq, Add, Sub, Mul, Display, From, Into, Hash, Serialize, Deserialize
+    Debug,
+    Copy,
+    Clone,
+    PartialOrd,
+    Ord,
+    PartialEq,
+    Eq,
+    Add,
+    Sub,
+    Mul,
+    Display,
+    From,
+    Into,
+    Hash,
+    Serialize,
+    Deserialize,
 )]
 pub struct TileIndex(pub u64);
 
@@ -180,7 +195,22 @@ pub struct HGSTile {
 /// Towards the right, `r` stays constant and is *positive* on the bottom side.
 /// Towards the top-right, `s` stays constant and is negative on the bottom side.
 // TODO: Division is not implemented for CCTile. If needed, it should yield a CCTileFloat type.
-#[derive(Debug, Copy, Clone, PartialEq, Display, From, Into, Eq, Neg, Add, Mul, Sub, Serialize, Deserialize)]
+#[derive(
+    Debug,
+    Copy,
+    Clone,
+    PartialEq,
+    Display,
+    From,
+    Into,
+    Eq,
+    Neg,
+    Add,
+    Mul,
+    Sub,
+    Serialize,
+    Deserialize,
+)]
 #[display("CCTile: ({q}, {r},{s})")]
 pub struct CCTile {
     q: i64,
@@ -1767,11 +1797,35 @@ mod test {
 
         // Test with a tile where both q and r are relevant, and origin and unit step are non-default.
         let tile35 = HGSTile::make(35).cc();
-        let pixel35 = tile35.to_pixel((2., 3.), (4.,4.));
+        let pixel35 = tile35.to_pixel((2., 3.), (4., 4.));
         // Tile 35, aka (3, 1, -4), is 2.5 steps to the right and one step down.
         let pxstep = CCTile::pixel_step_vertical(4.);
         let should_be_pixel_35 = (2. + 2.5 * pxstep.0, 3. - pxstep.1);
         assert_eq!(pixel35, should_be_pixel_35);
+    }
+
+    #[test]
+    fn test_conversion_to_pixel_pr1() {
+        // This test exists because I thought this looks wrong and was surprised the tests were
+        // passing:
+        // https://github.com/lucidBrot/hexgridspiral/pull/1/files#diff-b1a35a68f14e696205874893c07fd24fdb88882b47c23cc0e0c80a30c7d53759L979L978
+        // Did they forget the division by sqrt(3) ?
+        // No. The code is correct, just misnamed.
+
+        let double_step_up_tile = HGSTile::make(9);
+        // The coordinates of tile 9 should be x = 0
+        // and y equals (1 side + 2 * circumradius).
+        let side = 1.;
+        let circumradius = side;
+        let inradius = f64::sqrt(3.) / 2. * circumradius;
+        let expected_x = 0.;
+        let expected_y = side + 2. * circumradius;
+        let unit_step = 2. * inradius;
+        let pixel = double_step_up_tile
+            .cc()
+            .to_pixel((0., 0.), (unit_step, unit_step));
+        assert_approx_eq!(pixel.0, expected_x);
+        assert_approx_eq!(pixel.1, expected_y);
     }
 
     #[test]

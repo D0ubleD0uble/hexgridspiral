@@ -12,7 +12,9 @@ fn main() {
     // Let's spawn twenty hex-tiles around the origin
     let step_size = 1.;
     for i in 0..21 {
-        let tile = HGSTile::make(i).cc().to_pixel((0., 0.), (step_size, step_size));
+        let tile = HGSTile::make(i)
+            .cc()
+            .to_pixel((0., 0.), (step_size, step_size));
         // Let's say you want to add tiles to your levelmap in the game UI:
         add_tile_to_user_interface(tile, i);
     }
