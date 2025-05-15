@@ -1067,18 +1067,20 @@ impl CCTile {
 
     /// Inversion of the formula in [CCTile::to_pixel] and rounding to the nearest hex tile.
     /// `unit_step` determines the scaling - it is the distance between two adjacent hex tile centers, in pixel units.
+    /// For use on irregular grids, see [Self::from_irregular_pixel].
     pub fn from_pixel_(pixel: (f64, f64), origin: (f64, f64), unit_step: f64) -> Self {
-        let x = pixel.0 - origin.0;
-        let y = pixel.1 - origin.1;
-        // Based on to_pixel formulas:
-        // let x = unit_step * ((self.q as f64) + (self.r as f64) / 2.);
-        // let y = f64::sqrt(3.)/2.*unit_step*(-self.r as f64);
-        let r = -2. / f64::sqrt(3.) * y / unit_step;
-        let q = x / unit_step - (r / 2.);
-        Self::round_to_nearest_tile(q, r)
+        Self::from_irregular_pixel(pixel, origin, (unit_step, unit_step))
     }
 
-    pub fn from_irregular_pixel(pixel: (f64, f64), origin: (f64, f64), unit_steps: (f64, f64)) -> Self {
+    /// Inversion of the formula in [CCTile::to_pixel] and rounding to the nearest hex tile.
+    /// `unit_steps` determines the scaling - it is the distance between two adjacent hex tile centers, in pixel units.
+    /// For an irregular grid (of hex tile centers), you can specify a tuple `(unit_step_x,
+    /// unit_step_y)`.
+    pub fn from_irregular_pixel(
+        pixel: (f64, f64),
+        origin: (f64, f64),
+        unit_steps: (f64, f64),
+    ) -> Self {
         let x = pixel.0 - origin.0;
         let y = pixel.1 - origin.1;
         // Based on to_pixel formulas:
@@ -1806,7 +1808,10 @@ mod test {
         assert_eq!(tile_right.to_pixel((1., 2.), 1.), (6., 2.));
 
         // Same at larger scale:
-        assert_eq!(tile1_cc.to_irregular_pixel((0., 0.), (10000., 10000.)), (10000., 0.));
+        assert_eq!(
+            tile1_cc.to_irregular_pixel((0., 0.), (10000., 10000.)),
+            (10000., 0.)
+        );
 
         // Same with a tile that is not at r == 0:
         let tile2 = CCTile::unit(&RingCornerIndex::TOPLEFT);
@@ -1846,9 +1851,7 @@ mod test {
         let expected_x = 0.;
         let expected_y = side + 2. * circumradius;
         let unit_step = 2. * inradius;
-        let pixel = double_step_up_tile
-            .cc()
-            .to_pixel((0., 0.), unit_step);
+        let pixel = double_step_up_tile.cc().to_pixel((0., 0.), unit_step);
         assert_approx_eq!(pixel.0, expected_x);
         assert_approx_eq!(pixel.1, expected_y);
     }
@@ -1925,8 +1928,8 @@ mod test {
     #[test]
     fn test_conversion_from_irregular_pixel_and_back() {
         let origin = (0., 0.);
-        let unit_step_x= 2.;
-        let unit_step_y= 3.5;
+        let unit_step_x = 2.;
+        let unit_step_y = 3.5;
         // Test that to and from pixel are consistent.
         for h in [0, 1, 2, 4, 5, 6, 8, 10, 27, 100] {
             let tile = CCTile::make(h);
