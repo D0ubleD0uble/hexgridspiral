@@ -1,7 +1,7 @@
 # Changelog
 Best-Effort (Means: worst-effort, actually).
 
-## v0.2.9
+## v0.3.0
 * Add `to_irregular_pixel` and `from_irregular_pixel` functions to `CCTile`: [pr1](https://github.com/lucidBrot/hexgridspiral/pull/1)
 
 ## v0.2.8
