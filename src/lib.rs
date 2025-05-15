@@ -990,13 +990,24 @@ impl CCTile {
 
     /// computes the coordinates in the plane as floats.
     /// * `unit_step` : The size of one step from a hex tile's center to its neighboring tile's center.
+    /// The `unit_step` is twice the incircle radius of the hex. Or `sqrt(3) * outcircle_radius`.
+    /// * `origin` : The pixel position of the origin-tile's center.
+    ///
+    /// The resulting pixel coordinates are in a system where positive x corresponds to [RingCornerIndex::RIGHT] and
+    /// positive y corresponds to the UP-direction between ([RingCornerIndex::TOPLEFT] and [RingCornerIndex::TOPRIGHT]).
+    pub fn to_pixel(&self, origin: (f64, f64), unit_step: f64) -> (f64, f64) {
+        self.to_irregular_pixel(origin, (unit_step, unit_step))
+    }
+
+    /// computes the coordinates in the plane as floats.
+    /// * `unit_step` : The size of one step from a hex tile's center to its neighboring tile's center.
     /// The `unit_step` is normally twice the incircle radius of the hex. Or `sqrt(3) * outcircle_radius`,
     /// but we allow the user to specify x and y steps separately to support irregular hexagons.
     /// * `origin` : The pixel position of the origin-tile's center.
     ///
     /// The resulting pixel coordinates are in a system where positive x corresponds to [RingCornerIndex::RIGHT] and
-    /// positive y corresponds to the UP-direction between ([RingCornerIndex::TOPLEFT] and [RingCornerIndex::TOPRIGHT])..
-    pub fn to_pixel(&self, origin: (f64, f64), unit_step: (f64, f64)) -> (f64, f64) {
+    /// positive y corresponds to the UP-direction between ([RingCornerIndex::TOPLEFT] and [RingCornerIndex::TOPRIGHT]).
+    pub fn to_irregular_pixel(&self, origin: (f64, f64), unit_step: (f64, f64)) -> (f64, f64) {
         // We have point-top hexes. Call the hex inner-radius iR and the hex outer-radius oR.
         // The width (aka iR) of a hex equals sqrt(3)/2 * height (aka oR).
         // On the redblobgames website, they call the "size" what I'd call oR.
