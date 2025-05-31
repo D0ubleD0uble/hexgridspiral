@@ -1308,6 +1308,34 @@ mod test {
     }
 
     #[test]
+    fn test_hexgridspiral_cc_conversion_issue1() {
+        let hgs_tile = HGSTile::make(37);
+        assert_eq!(hgs_tile.h, TileIndex(37), "TileIndex was wrong A1");
+
+        // Check that the three ways to construct the CCTile(37) agree.
+        let cc_37_from_hgs: CCTile = CCTile::from(HGSTile::make(37));
+        let cc_37_from_qr = CCTile::from_qr(4, -1);
+        assert_eq!(cc_37_from_hgs, cc_37_from_qr);
+        let cc_37_from_qrs = CCTile::from_qrs(4, -1, -3);
+        assert_eq!(cc_37_from_hgs, cc_37_from_qrs);
+
+        // Get TileIndex from hgs
+        let hgs_from_cc_from_hgs: HGSTile = cc_37_from_hgs.into();
+        let h_37_from_cc_from_hgs = hgs_from_cc_from_hgs.h;
+        assert_eq!(h_37_from_cc_from_hgs, TileIndex(37), "TileIndex was wrong (cc from hgs)");
+
+        // Get TileIndex from qr
+        let hgs_37_from_qr : HGSTile = cc_37_from_qr.into();
+        let h_37_from_qr = hgs_37_from_qr.h;
+        assert_eq!(h_37_from_qr, TileIndex(37), "TileIndex was wrong (qr)");
+
+        // Get TileIndex from qrs
+        let hgs_37 : HGSTile = cc_37_from_qrs.into();
+        let h_37 = hgs_37.h;
+        assert_eq!(h_37, TileIndex(37), "TileIndex was wrong (qrs)");
+    }
+
+    #[test]
     fn test_cc_hexgridspiral_conversion() {
         let origin = HGSTile::make(0);
         let tile0: CCTile = origin.into();
@@ -1940,4 +1968,5 @@ mod test {
         let tile2 = CCTile::from_qrs(-3, 2, 1);
         assert_eq!(tile2.grid_distance_to(&tile1), 4);
     }
+
 }
