@@ -308,6 +308,17 @@ impl HGSTile {
         Self::new(TileIndex((self.h.value() as i64 + steps) as u64))
     }
 
+    /// `steps` steps along the ring, in circular fashion.
+    /// May be negative, but may not lead to a negative tile-index.
+    pub fn steps_within_ring(&self, steps: i64) -> Self {
+        assert!(steps <= self.h.value() as i64);
+        let ring_size = self.ring.size();
+        let ring_min = self.ring_min();
+        let current_offset_in_ring = self.h.value() - ring_min.h.value();
+        let new_offset_in_ring = (current_offset_in_ring + (steps.rem_euclid(ring_size as i64) as u64)).rem_euclid(ring_size);
+        Self::new(ring_min.h + new_offset_in_ring)
+    }
+
     pub fn decrement_spiral(&self) -> Self {
         assert!(
             self.h.value() > 0,
@@ -1269,7 +1280,11 @@ impl From<&CCTile> for HGSTile {
         // We know it is a corner, so we can look up it's orientation.
         let rci = CCTile::corner_to_direction(previous_corner);
         let previous_corner_hgs = HGSTile::new(ring.corner(rci));
-        return HGSTile::new(previous_corner_hgs.h + offset_along_edge_hgs);
+
+        // issue-1: If the previous corner happens to be the ring's maximum,
+        // we need to ensure we stay in the same ring.
+
+        return previous_corner_hgs.steps_within_ring(offset_along_edge_hgs as i64);
     }
 }
 
