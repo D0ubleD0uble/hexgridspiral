@@ -338,6 +338,17 @@ impl HGSTile {
         Self::new(TileIndex((self.h.value() as i64 + steps) as u64))
     }
 
+    /// `steps` steps along the ring, in circular fashion.
+    /// May be negative, but may not lead to a negative tile-index.
+    pub fn steps_within_ring(&self, steps: i64) -> Self {
+        assert!(steps <= self.h.value() as i64);
+        let ring_size = self.ring.size();
+        let ring_min = self.ring_min();
+        let current_offset_in_ring = self.h.value() - ring_min.h.value();
+        let new_offset_in_ring = (current_offset_in_ring + (steps.rem_euclid(ring_size as i64) as u64)).rem_euclid(ring_size);
+        Self::new(ring_min.h + new_offset_in_ring)
+    }
+
     pub fn decrement_spiral(&self) -> Self {
         assert!(
             self.h.value() > 0,
@@ -1325,7 +1336,11 @@ impl From<&CCTile> for HGSTile {
         // We know it is a corner, so we can look up it's orientation.
         let rci = CCTile::corner_to_direction(previous_corner);
         let previous_corner_hgs = HGSTile::new(ring.corner(rci));
-        return HGSTile::new(previous_corner_hgs.h + offset_along_edge_hgs);
+
+        // issue-1: If the previous corner happens to be the ring's maximum,
+        // we need to ensure we stay in the same ring.
+
+        return previous_corner_hgs.steps_within_ring(offset_along_edge_hgs as i64);
     }
 }
 
@@ -1361,6 +1376,34 @@ mod test {
         let o_cc: CCTile = CCTile::from(HGSTile::make(9));
         let nine = CCTile::from_qr(1, -2);
         assert_eq!(nine, o_cc);
+    }
+
+    #[test]
+    fn test_hexgridspiral_cc_conversion_issue1() {
+        let hgs_tile = HGSTile::make(37);
+        assert_eq!(hgs_tile.h, TileIndex(37), "TileIndex was wrong A1");
+
+        // Check that the three ways to construct the CCTile(37) agree.
+        let cc_37_from_hgs: CCTile = CCTile::from(HGSTile::make(37));
+        let cc_37_from_qr = CCTile::from_qr(4, -1);
+        assert_eq!(cc_37_from_hgs, cc_37_from_qr);
+        let cc_37_from_qrs = CCTile::from_qrs(4, -1, -3);
+        assert_eq!(cc_37_from_hgs, cc_37_from_qrs);
+
+        // Get TileIndex from hgs
+        let hgs_from_cc_from_hgs: HGSTile = cc_37_from_hgs.into();
+        let h_37_from_cc_from_hgs = hgs_from_cc_from_hgs.h;
+        assert_eq!(h_37_from_cc_from_hgs, TileIndex(37), "TileIndex was wrong (cc from hgs)");
+
+        // Get TileIndex from qr
+        let hgs_37_from_qr : HGSTile = cc_37_from_qr.into();
+        let h_37_from_qr = hgs_37_from_qr.h;
+        assert_eq!(h_37_from_qr, TileIndex(37), "TileIndex was wrong (qr)");
+
+        // Get TileIndex from qrs
+        let hgs_37 : HGSTile = cc_37_from_qrs.into();
+        let h_37 = hgs_37.h;
+        assert_eq!(h_37, TileIndex(37), "TileIndex was wrong (qrs)");
     }
 
     #[test]
@@ -2045,4 +2088,5 @@ mod test {
         let tile2 = CCTile::from_qrs(-3, 2, 1);
         assert_eq!(tile2.grid_distance_to(&tile1), 4);
     }
+
 }
